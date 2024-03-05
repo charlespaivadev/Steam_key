@@ -1,0 +1,89 @@
+from selenium import webdriver
+from csv import DictReader
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+import csv
+
+temp_list_key = []
+temp_list_status = []
+temp_list_time = []
+next_key = []
+
+options = Options()
+options.add_experimental_option("detach", True)
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()),
+                          options=options)
+driver.get('https://partner.steamgames.com/querycdkey/')
+
+def get_coookies_values(file):
+    with open(file) as f:
+        dict_reader = DictReader(f)
+        list_of_dicts = list(dict_reader)
+    return list_of_dicts
+
+cookies = get_coookies_values("cookies_steam.csv")
+
+for i in cookies:
+    driver.add_cookie(i)
+
+driver.refresh()
+
+driver.get('https://partner.steamgames.com/querycdkey/')
+
+WebDriverWait(driver, 5).until(
+    EC.presence_of_element_located((By.NAME, "cdkey"))
+)
+
+with open("Your_path_here\\keys.csv") as file:
+    csvfile = csv.reader(file)
+    
+    for line in csvfile:
+
+        input_element = driver.find_element(By.NAME, "cdkey")
+        input_element.clear()
+        input_element.send_keys(line[0] + Keys.ENTER)
+        temp_list_key.append(line[0])
+
+
+        time.sleep(1)
+
+        key_status = driver.find_elements(By.TAG_NAME, "span")
+        for status in key_status:
+            if "Activated" in status.get_attribute("innerHTML"):
+                print("Activated")
+                time_status = driver.find_elements(By.XPATH, "/html/body/div[7]/table[1]/tbody/tr[2]/td[2]")
+                for i in time_status:
+                    temp_list_time.append(i.get_attribute("innerHTML"))
+                    temp_list_status.append("Activated")
+            elif "Not activated" in status.get_attribute("innerHTML"):
+                temp_list_time.append("--")
+                temp_list_status.append("Not activated")
+
+
+
+
+with open("C:Your_path_here\\key_information.csv", "w", newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(["Key", "Status", "Time Activated"])
+
+    while(temp_list_key != []):
+        next_key.append(temp_list_key.pop(0))
+        next_key.append(temp_list_status.pop(0))
+        next_key.append(temp_list_time.pop(0))
+        
+    while(next_key != []):
+        temp_list_key.append(next_key.pop(0))
+        temp_list_key.append(next_key.pop(0))
+        temp_list_key.append(next_key.pop(0))
+
+        
+        writer.writerow(temp_list_key)
+        temp_list_key.clear()
