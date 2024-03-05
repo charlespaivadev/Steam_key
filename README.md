@@ -10,6 +10,6 @@
 
 - Create a new file "key_information.csv". (this file is where the information will be stored)
 
-- Create a new file "cookies.py" and paste all my code: (BEFORE PASTE IT, pay attention to where you have do replace the path of your file, there are only 2 paths you need to replace. And in the path you have add "\" to "\\")
+- Create a new file "cookies.py" and paste all my code: (BEFORE PASTE IT, pay attention to where you have do replace the path of your file, there are only 2 paths you need to replace. And in the path you have add '\' to '\\')
 
 after that Just Run it and enjoy it!
